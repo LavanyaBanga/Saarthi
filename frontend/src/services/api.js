@@ -1,7 +1,4 @@
-const BASE = import.meta.env.VITE_API_URL
-  ? `${import.meta.env.VITE_API_URL}/api`
-  : "http://localhost:5002/api";
-const getToken = () => localStorage.getItem('token');
+const BASE = import.meta.env.VITE_API_URL || "http://localhost:5002";
 
 const authHeaders = () => ({
   'Content-Type': 'application/json',
