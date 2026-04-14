@@ -12,7 +12,7 @@ import AuthContainer from "./Components/SignIn";
 // It should be capital C:
 import Chatbot from "./Components/Chatbot/Chatbot";
 
-import UserDashboard from "./Components/UserDashboard/user";
+import UserDashboard from "./Components/UserDashboard/User";
 import Booking from "./Components/UserDashboard/Booking";
 import Success from "./Components/UserDashboard/Success";
 import DoctorLayout from "./Components/Doctor/DoctorLayout";
