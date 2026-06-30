@@ -1,55 +1,81 @@
-const jwt = require('jsonwebtoken');
-const Doctor = require('../models/Doctor');
-const Patient = require('../models/Patient');
+const jwt = require("jsonwebtoken");
+const Doctor = require("../models/Doctor");
+const Patient = require("../models/Patient");
 
 const protect = async (req, res, next) => {
-  let token;
+  try {
+    const authHeader = req.headers.authorization;
 
-  if (
-    req.headers.authorization &&
-    req.headers.authorization.startsWith('Bearer')
-  ) {
-    try {
-      token = req.headers.authorization.split(' ')[1];
-
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-      // Check if it's doctor or patient
-      const doctor = await Doctor.findById(decoded.id).select('-password');
-      const patient = await Patient.findById(decoded.id).select('-password');
-
-    if (doctor) {
-  req.user = { ...doctor.toObject(), role: 'doctor' };
-} else if (patient) {
-  req.user = { ...patient.toObject(), role: 'patient' };
-}
-
-      next();
-    } catch (error) {
-      res.status(401).json({
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return res.status(401).json({
         success: false,
-        message: 'Not authorized, token failed'
+        message: "No token provided",
       });
     }
-  }
 
-  if (!token) {
-    res.status(401).json({
+    const token = authHeader.split(" ")[1];
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    let doctor = await Doctor.findById(decoded.id).select("-password");
+
+    if (doctor) {
+      const doctorObj = doctor.toObject();
+
+      req.user = {
+        ...doctorObj,
+        id: doctorObj._id.toString(),
+        _id: doctorObj._id,
+        role: "doctor",
+      };
+
+      return next();
+    }
+
+    let patient = await Patient.findById(decoded.id).select("-password");
+
+    if (patient) {
+      const patientObj = patient.toObject();
+
+      req.user = {
+        ...patientObj,
+        id: patientObj._id.toString(),
+        _id: patientObj._id,
+        role: "patient",
+      };
+
+      return next();
+    }
+
+    return res.status(401).json({
       success: false,
-      message: 'Not authorized, no token'
+      message: "User not found",
+    });
+  } catch (err) {
+    console.log("JWT ERROR:", err.message);
+
+    return res.status(401).json({
+      success: false,
+      message: "Invalid or expired token",
     });
   }
 };
 
-// Grant access to specific roles
 const authorize = (...roles) => {
   return (req, res, next) => {
+    if (!req.user || !req.user.role) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized",
+      });
+    }
+
     if (!roles.includes(req.user.role)) {
       return res.status(403).json({
         success: false,
-        message: `Role ${req.user.role} is not authorized to access this route`
+        message: "Access denied",
       });
     }
+
     next();
   };
 };
