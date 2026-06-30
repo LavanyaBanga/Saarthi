@@ -11,7 +11,13 @@ const app = express();
 connectDB();
 
 // Middleware
-app.use(cors());
+app.use(
+  cors({
+    origin: "https://saarthi-ral2.vercel.app/",
+    credentials: true,
+  })
+);
+
 app.use(express.json());
 
 // Routes
@@ -25,10 +31,11 @@ app.get("/", (req, res) => {
   res.send("API is running 🚀");
 });
 
-// Error Handler (must be after routes)
+// Error Handler
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 5002;
+
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
