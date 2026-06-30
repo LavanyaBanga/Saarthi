@@ -6,7 +6,7 @@ const {
   getSessions,
   getSessionById,
   deleteSession,
-} = require('../controllers/chatController');
+} = require('../Controllers/chatController');
 
 const { protect, authorize } = require('../Middleware/authMiddleware');
 const { validateChatMessage } = require('../Middleware/validateRequest');
