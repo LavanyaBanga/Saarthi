@@ -9,7 +9,7 @@ import AuthContainer from "./Components/SignIn";
 
 import Chatbot from "./Components/Chatbot/Chatbot";
 import UserDashboard from "./Components/UserDashboard/user";
-import Booking from "./Components/UserDashboard/Booking";
+//import Booking from "./Components/UserDashboard/Booking";
 import Success from "./Components/UserDashboard/Success";
 import DoctorLayout from "./Components/Doctor/DoctorLayout";
 import AuthLogin from "./Components/SignIn";
@@ -131,7 +131,7 @@ const router = createBrowserRouter([
   { path: "/Chatbot", element: <Chatbot /> },
   
   { path: "/UserDashboard", element: <UserDashboard /> },
-  { path: "/booking", element: <Booking /> },
+  
   { path: "/success", element: <Success /> },
 
   { path: "/doctor", element: <DoctorLayout /> },
