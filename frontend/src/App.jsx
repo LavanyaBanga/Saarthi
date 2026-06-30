@@ -10,7 +10,7 @@ import AuthContainer from "./Components/SignIn";
 import Chatbot from "./Components/Chatbot/Chatbot";
 import UserDashboard from "./Components/UserDashboard/user";
 //import Booking from "./Components/UserDashboard/Booking";
-import Success from "./Components/UserDashboard/Success";
+import Success from "./Components/UserDashboard/success";
 import DoctorLayout from "./Components/Doctor/DoctorLayout";
 import AuthLogin from "./Components/SignIn";
 import Dashboard from "./Components/UserDashboard/UserLook";
