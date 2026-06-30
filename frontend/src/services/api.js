@@ -1,4 +1,4 @@
-const BASE = "http://localhost:5002/api";
+const BASE = "https://saarthi-4-8g1i.onrender.com/api";
 
 const getToken = () => localStorage.getItem("token");
 
