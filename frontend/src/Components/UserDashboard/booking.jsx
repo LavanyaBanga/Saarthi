@@ -18,191 +18,230 @@ export default function BookingPage() {
   const [fetchingDoctors, setFetchingDoctors] = useState(true);
   const [error, setError] = useState("");
 
-  const timeSlots = ["09:00", "10:00", "11:00", "12:00", "14:00", "15:00", "16:00", "17:00"];
+  const timeSlots = [
+    "09:00", "10:00", "11:00", "12:00",
+    "14:00", "15:00", "16:00", "17:00",
+  ];
 
   useEffect(() => {
-    if (!localStorage.getItem("token")) { navigate("/login"); return; }
-    api.getDoctors().then(data => {
-      if (data.success) setDoctors(data.data);
-    }).catch(() => setError("Could not load doctors")).finally(() => setFetchingDoctors(false));
-  }, []);
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      navigate("/login");
+      return;
+    }
+
+    api
+      .getDoctors()
+      .then((data) => {
+        if (data.success) {
+          setDoctors(data.data || []);
+        } else {
+          setError(data.message || "Could not load doctors");
+        }
+      })
+      .catch(() => setError("Could not load doctors"))
+      .finally(() => setFetchingDoctors(false));
+  }, [navigate]);
 
   const handleBook = async () => {
-    if (!selectedDoctor) { setError("Please select a doctor"); return; }
-    if (!date) { setError("Please select a date"); return; }
-    if (!time) { setError("Please select a time"); return; }
-    setLoading(true); setError("");
+    if (!selectedDoctor) {
+      setError("Please select a doctor");
+      return;
+    }
+
+    if (!date) {
+      setError("Please select a date");
+      return;
+    }
+
+    if (!time) {
+      setError("Please select a time");
+      return;
+    }
+
+    setLoading(true);
+    setError("");
+
     try {
       const datetime = new Date(`${date}T${time}:00`);
-      const data = await api.bookAppointment({ doctorId: selectedDoctor._id || selectedDoctor.id, date: datetime.toISOString() });
-      if (!data.success) { setError(data.message || "Booking failed"); return; }
-      navigate("/success", { state: { doctor: selectedDoctor, date, time, appointment: data.data } });
-    } catch { setError("Network error. Is backend running?"); }
-    finally { setLoading(false); }
+
+      const data = await api.bookAppointment({
+        doctorId: selectedDoctor._id || selectedDoctor.id,
+        date: datetime.toISOString(),
+      });
+
+      if (!data.success) {
+        setError(data.message || "Booking failed");
+        return;
+      }
+
+      navigate("/success", {
+        state: {
+          doctor: selectedDoctor,
+          date,
+          time,
+          appointment: data.data,
+        },
+      });
+    } catch {
+      setError("Network error. Is backend running?");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const filteredDoctors = doctors.filter(d =>
-    d.name.toLowerCase().includes(search.toLowerCase()) ||
+  const filteredDoctors = doctors.filter((d) =>
+    d.name?.toLowerCase().includes(search.toLowerCase()) ||
     d.specialization?.toLowerCase().includes(search.toLowerCase())
   );
 
   return (
-  <div className="min-h-screen bg-[#fafafa] p-3 sm:p-4 md:p-6">
-    <div className="max-w-4xl mx-auto">
-      <button
-        onClick={() => navigate("/UserDashboard")}
-        className="flex items-center gap-1 text-[#7C6A9B] text-sm mb-4 md:mb-6 hover:underline"
-      >
-        <ChevronLeft size={16} />
-        Back to Dashboard
-      </button>
-
-      <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="bg-white rounded-2xl md:rounded-3xl shadow-lg border p-4 sm:p-6 md:p-8"
-      >
-        <h2 className="text-xl sm:text-2xl font-semibold text-[#5c4b7a] mb-6 text-center">
-          Book Appointment
-        </h2>
-
-        {error && (
-          <div className="flex items-center gap-2 bg-red-50 border border-red-200 text-red-600 text-sm px-4 py-3 rounded-xl mb-5">
-            <AlertCircle size={16} />
-            {error}
-          </div>
-        )}
-
-        {/* Doctor Selection */}
-        <div className="mb-6">
-          <h3 className="text-sm font-medium text-gray-600 mb-3">
-            1. Select a Doctor
-          </h3>
-
-          {selectedDoctor ? (
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 rounded-xl bg-[#f5f3fb] border border-[#d8d0ee]">
-              <div>
-                <p className="font-semibold text-[#5c4b7a] break-words">
-                  {selectedDoctor.name}
-                </p>
-
-                <p className="text-sm text-gray-500">
-                  {selectedDoctor.specialization} •{" "}
-                  {selectedDoctor.experience} yrs exp
-                </p>
-              </div>
-
-              <button
-                onClick={() => setSelectedDoctor(null)}
-                className="text-sm text-[#7C6A9B] underline self-start sm:self-auto"
-              >
-                Change
-              </button>
-            </div>
-          ) : (
-            <>
-              <div className="flex items-center bg-white border border-gray-200 rounded-xl px-4 py-3 mb-3">
-                <Search size={16} className="text-gray-400 mr-2" />
-
-                <input
-                  placeholder="Search by name or specialization"
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  className="outline-none text-sm w-full text-gray-700"
-                />
-              </div>
-
-              {fetchingDoctors ? (
-                <p className="text-gray-400 text-sm text-center py-4">
-                  Loading doctors...
-                </p>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-72 overflow-y-auto pr-1">
-                  {filteredDoctors.map((doc) => (
-                    <button
-                      key={doc._id}
-                      onClick={() => setSelectedDoctor(doc)}
-                      className="text-left p-4 rounded-xl border hover:border-[#7C6A9B] hover:bg-[#f5f3fb] transition"
-                    >
-                      <p className="font-medium text-[#5c4b7a] break-words">
-                        {doc.name}
-                      </p>
-
-                      <p className="text-sm text-gray-500">
-                        {doc.specialization}
-                      </p>
-
-                      <p className="text-xs text-gray-400 mt-1">
-                        {doc.experience} yrs experience
-                      </p>
-                    </button>
-                  ))}
-
-                  {filteredDoctors.length === 0 && (
-                    <p className="text-gray-400 text-sm text-center py-4 md:col-span-2">
-                      No doctors found
-                    </p>
-                  )}
-                </div>
-              )}
-            </>
-          )}
-        </div>
-
-        {/* Date Selection */}
-        <div className="mb-6">
-          <h3 className="text-sm font-medium text-gray-600 mb-3 flex items-center gap-2">
-            <Calendar size={16} />
-            2. Select Date
-          </h3>
-
-          <input
-            type="date"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-            min={new Date().toISOString().split("T")[0]}
-            className="w-full p-3 rounded-xl border outline-none text-sm focus:ring-2 focus:ring-[#7C6A9B]"
-          />
-        </div>
-
-        {/* Time Selection */}
-        <div className="mb-8">
-          <h3 className="text-sm font-medium text-gray-600 mb-3 flex items-center gap-2">
-            <Clock size={16} />
-            3. Select Time
-          </h3>
-
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-            {timeSlots.map((slot) => (
-              <motion.button
-                key={slot}
-                onClick={() => setTime(slot)}
-                whileHover={{ scale: 1.03 }}
-                whileTap={{ scale: 0.95 }}
-                className={`p-3 rounded-xl text-sm border transition font-medium ${
-                  time === slot
-                    ? "bg-[#7C6A9B] text-white border-[#7C6A9B]"
-                    : "bg-white text-[#5c4b7a]"
-                }`}
-              >
-                {slot}
-              </motion.button>
-            ))}
-          </div>
-        </div>
-
+    <div className="min-h-screen bg-[#fafafa] p-3 sm:p-4 md:p-6">
+      <div className="max-w-4xl mx-auto">
         <button
-          onClick={handleBook}
-          disabled={loading}
-          className="w-full py-4 rounded-xl font-medium text-white text-sm transition disabled:opacity-60 bg-[#7C6A9B] hover:bg-[#6d5a8a]"
+          onClick={() => navigate("/UserDashboard")}
+          className="flex items-center gap-1 text-[#7C6A9B] text-sm mb-4 md:mb-6 hover:underline"
         >
-          {loading ? "Booking..." : "Confirm Appointment"}
+          <ChevronLeft size={16} />
+          Back to Dashboard
         </button>
-      </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-white rounded-2xl md:rounded-3xl shadow-lg border p-4 sm:p-6 md:p-8"
+        >
+          <h2 className="text-xl sm:text-2xl font-semibold text-[#5c4b7a] mb-6 text-center">
+            Book Appointment
+          </h2>
+
+          {error && (
+            <div className="flex items-center gap-2 bg-red-50 border border-red-200 text-red-600 text-sm px-4 py-3 rounded-xl mb-5">
+              <AlertCircle size={16} />
+              {error}
+            </div>
+          )}
+
+          <div className="mb-6">
+            <h3 className="text-sm font-medium text-gray-600 mb-3">
+              1. Select a Doctor
+            </h3>
+
+            {selectedDoctor ? (
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 rounded-xl bg-[#f5f3fb] border border-[#d8d0ee]">
+                <div>
+                  <p className="font-semibold text-[#5c4b7a] break-words">
+                    {selectedDoctor.name}
+                  </p>
+                  <p className="text-sm text-gray-500">
+                    {selectedDoctor.specialization} • {selectedDoctor.experience} yrs exp
+                  </p>
+                </div>
+
+                <button
+                  onClick={() => setSelectedDoctor(null)}
+                  className="text-sm text-[#7C6A9B] underline self-start sm:self-auto"
+                >
+                  Change
+                </button>
+              </div>
+            ) : (
+              <>
+                <div className="flex items-center bg-white border border-gray-200 rounded-xl px-4 py-3 mb-3">
+                  <Search size={16} className="text-gray-400 mr-2" />
+                  <input
+                    placeholder="Search by name or specialization"
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    className="outline-none text-sm w-full text-gray-700"
+                  />
+                </div>
+
+                {fetchingDoctors ? (
+                  <p className="text-gray-400 text-sm text-center py-4">
+                    Loading doctors...
+                  </p>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-72 overflow-y-auto pr-1">
+                    {filteredDoctors.map((doc) => (
+                      <button
+                        key={doc._id || doc.id}
+                        onClick={() => setSelectedDoctor(doc)}
+                        className="text-left p-4 rounded-xl border hover:border-[#7C6A9B] hover:bg-[#f5f3fb] transition"
+                      >
+                        <p className="font-medium text-[#5c4b7a] break-words">
+                          {doc.name}
+                        </p>
+                        <p className="text-sm text-gray-500">
+                          {doc.specialization}
+                        </p>
+                        <p className="text-xs text-gray-400 mt-1">
+                          {doc.experience} yrs experience
+                        </p>
+                      </button>
+                    ))}
+
+                    {filteredDoctors.length === 0 && (
+                      <p className="text-gray-400 text-sm text-center py-4 md:col-span-2">
+                        No doctors found
+                      </p>
+                    )}
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+
+          <div className="mb-6">
+            <h3 className="text-sm font-medium text-gray-600 mb-3 flex items-center gap-2">
+              <Calendar size={16} />
+              2. Select Date
+            </h3>
+
+            <input
+              type="date"
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+              min={new Date().toISOString().split("T")[0]}
+              className="w-full p-3 rounded-xl border outline-none text-sm focus:ring-2 focus:ring-[#7C6A9B]"
+            />
+          </div>
+
+          <div className="mb-8">
+            <h3 className="text-sm font-medium text-gray-600 mb-3 flex items-center gap-2">
+              <Clock size={16} />
+              3. Select Time
+            </h3>
+
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+              {timeSlots.map((slot) => (
+                <motion.button
+                  key={slot}
+                  onClick={() => setTime(slot)}
+                  whileHover={{ scale: 1.03 }}
+                  whileTap={{ scale: 0.95 }}
+                  className={`p-3 rounded-xl text-sm border transition font-medium ${
+                    time === slot
+                      ? "bg-[#7C6A9B] text-white border-[#7C6A9B]"
+                      : "bg-white text-[#5c4b7a]"
+                  }`}
+                >
+                  {slot}
+                </motion.button>
+              ))}
+            </div>
+          </div>
+
+          <button
+            onClick={handleBook}
+            disabled={loading}
+            className="w-full py-4 rounded-xl font-medium text-white text-sm transition disabled:opacity-60 bg-[#7C6A9B] hover:bg-[#6d5a8a]"
+          >
+            {loading ? "Booking..." : "Confirm Appointment"}
+          </button>
+        </motion.div>
+      </div>
     </div>
-  </div>
-);
-
-      
-
+  );
 }
