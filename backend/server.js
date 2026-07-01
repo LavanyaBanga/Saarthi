@@ -13,7 +13,7 @@ connectDB();
 // Middleware
 app.use(
   cors({
-    origin: "https://saarthi-rho-three.vercel.app/",
+    origin: "https://saarthi-5.onrender.com",
     credentials: true,
   })
 );
