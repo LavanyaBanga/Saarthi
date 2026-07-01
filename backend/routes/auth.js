@@ -1,25 +1,41 @@
-const express = require('express');
-const {
-  doctorSignup,
-  patientSignup,
-  doctorLogin,
-  patientLogin
-} = require('../Controllers/authController');
-const {
-  doctorSignupSchema,
-  patientSignupSchema,
-  loginSchema,
-  validate
-} = require('../Middleware/validation');
+const API_URL = import.meta.env.VITE_API_URL;
 
-const router = express.Router();
+export const patientSignup = async (data) => {
+  const res = await fetch(`${API_URL}/auth/patient/signup`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
 
-// Doctor Auth Routes
-router.post('/doctor/signup', validate(doctorSignupSchema), doctorSignup);
-router.post('/doctor/login', validate(loginSchema), doctorLogin);
+  return res.json();
+};
 
-// Patient Auth Routes
-router.post('/patient/signup', validate(patientSignupSchema), patientSignup);
-router.post('/patient/login', validate(loginSchema), patientLogin);
+export const patientLogin = async (data) => {
+  const res = await fetch(`${API_URL}/auth/patient/login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
 
-module.exports = router;
+  return res.json();
+};
+
+export const doctorSignup = async (data) => {
+  const res = await fetch(`${API_URL}/auth/doctor/signup`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+
+  return res.json();
+};
+
+export const doctorLogin = async (data) => {
+  const res = await fetch(`${API_URL}/auth/doctor/login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+
+  return res.json();
+};
