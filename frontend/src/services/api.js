@@ -1,4 +1,6 @@
-const BASE = "https://saarthi-4-8g1i.onrender.com/api";
+const BASE =
+  import.meta.env.VITE_API_URL ||
+  "https://saarthi-5.onrender.com/";
 
 const getToken = () => localStorage.getItem("token");
 
