@@ -14,7 +14,8 @@ import {
 import { SparklesIcon } from '@heroicons/react/24/solid';
 import { useNavigate } from 'react-router-dom';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5002';
+const API_BASE_URL =
+  import.meta.env.VITE_API_URL || "https://saarthi-3-4xfs.onrender.com/api";
 
 const QUICK_PROMPTS = [
   'How do I book an appointment?',
@@ -60,21 +61,20 @@ const request = async (url, options = {}) => {
 
 const api = {
   sendMessage: (message, sessionId) =>
-    request('/api/chat/send', {
-      method: 'POST',
+    request("/chat/send", {
+      method: "POST",
       body: JSON.stringify({ message, sessionId }),
     }),
 
-  getSessions: () => request('/api/chat/sessions'),
+  getSessions: () => request("/chat/sessions"),
 
-  getSession: (id) => request(`/api/chat/sessions/${id}`),
+  getSession: (id) => request(`/chat/sessions/${id}`),
 
   deleteSession: (id) =>
-    request(`/api/chat/sessions/${id}`, {
-      method: 'DELETE',
+    request(`/chat/sessions/${id}`, {
+      method: "DELETE",
     }),
 };
-
 const Sidebar = ({ sessions, activeId, onSelect, onNew, onDelete, isMobileOpen, onMobileClose }) => (
   <>
     {isMobileOpen && (
