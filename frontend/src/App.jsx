@@ -5,16 +5,16 @@ import {
   useNavigate,
 } from "react-router-dom";
 import { motion } from "framer-motion";
+
 import AuthContainer from "./Components/SignIn";
+import AuthLogin from "./Components/SignIn";
 
 import Chatbot from "./Components/Chatbot/Chatbot";
 import UserDashboard from "./Components/UserDashboard/user";
-//import Booking from "./Components/UserDashboard/Booking";
+import Booking from "./Components/UserDashboard/Booking";
 import Success from "./Components/UserDashboard/success";
 import DoctorLayout from "./Components/Doctor/DoctorLayout";
-import AuthLogin from "./Components/SignIn";
 import Dashboard from "./Components/UserDashboard/UserLook";
-
 
 const Loader = () => {
   return (
@@ -36,22 +36,11 @@ const HomePage = () => {
 
   return (
     <div className="min-h-screen bg-[#f5f3fb]">
-
-      {/* 🔝 Navbar */}
       <div className="flex justify-between items-center px-10 py-4 bg-white shadow-sm">
-        <h1 className="text-2xl font-bold text-[#7C6A9B] flex items-center gap-2">
-           Saarthi
-        </h1>
-
-        <div className="flex gap-6 items-center text-[#5c4b7a] font-medium">
-         
-        
-        </div>
+        <h1 className="text-2xl font-bold text-[#7C6A9B]">Saarthi</h1>
       </div>
 
-     
       <div className="flex flex-col items-center justify-center text-center mt-20 px-6">
-
         <motion.h1
           className="text-5xl font-bold text-[#3f2e5c] leading-tight"
           initial={{ opacity: 0, y: 30 }}
@@ -65,24 +54,17 @@ const HomePage = () => {
           manage health records, and get personalized care — all in one place.
         </p>
 
-        {/* Buttons */}
         <div className="flex gap-6 mt-10">
-
-          
-
-           <button
+          <button
             onClick={() => navigate("/login")}
             className="px-4 py-2 border border-[#7C6A9B] rounded-lg hover:bg-[#7C6A9B] hover:text-white transition"
           >
             Login
           </button>
-
         </div>
       </div>
 
-
       <div className="mt-24 px-10 grid md:grid-cols-3 gap-8">
-
         {[
           {
             title: "Instant Booking",
@@ -110,7 +92,6 @@ const HomePage = () => {
         ))}
       </div>
 
-      {/* 📦 Footer */}
       <div className="mt-20 text-center text-gray-500 pb-6">
         © 2026 Saarthi — Smart Healthcare Platform
       </div>
@@ -118,34 +99,30 @@ const HomePage = () => {
   );
 };
 
-
-
 const router = createBrowserRouter([
   { path: "/", element: <HomePage /> },
 
   { path: "/login", element: <AuthContainer /> },
-  
- 
- 
-  
+  { path: "/SignIn", element: <AuthLogin /> },
+
   { path: "/Chatbot", element: <Chatbot /> },
-  
+
   { path: "/UserDashboard", element: <UserDashboard /> },
-  
+  { path: "/dashboard", element: <Dashboard /> },
+
+  { path: "/booking", element: <Booking /> },
   { path: "/success", element: <Success /> },
 
   { path: "/doctor", element: <DoctorLayout /> },
-  {path:"/SignIn",element:<AuthLogin/>},
- { path: "/dashboard", element: <Dashboard /> }
 ]);
-
-
 
 function App() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    setTimeout(() => setLoading(false), 1500);
+    const timer = setTimeout(() => setLoading(false), 1500);
+
+    return () => clearTimeout(timer);
   }, []);
 
   return loading ? <Loader /> : <RouterProvider router={router} />;
