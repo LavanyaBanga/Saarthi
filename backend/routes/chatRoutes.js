@@ -1,25 +1,21 @@
 const express = require('express');
-const {
-  doctorSignup,
-  patientSignup,
-  doctorLogin,
-  patientLogin
-} = require('../Controllers/authController');
-const {
-  doctorSignupSchema,
-  patientSignupSchema,
-  loginSchema,
-  validate
-} = require('../Middleware/validation');
-
 const router = express.Router();
 
-// Doctor Auth Routes
-router.post('/doctor/signup', validate(doctorSignupSchema), doctorSignup);
-router.post('/doctor/login', validate(loginSchema), doctorLogin);
+const {
+  sendMessage,
+  getSessions,
+  getSessionById,
+  deleteSession,
+} = require('../Controllers/chatController');
 
-// Patient Auth Routes
-router.post('/patient/signup', validate(patientSignupSchema), patientSignup);
-router.post('/patient/login', validate(loginSchema), patientLogin);
+const { protect, authorize } = require('../Middleware/authMiddleware');
+
+router.use(protect);
+router.use(authorize('patient', 'doctor'));
+
+router.post('/send', sendMessage);
+router.get('/sessions', getSessions);
+router.get('/sessions/:id', getSessionById);
+router.delete('/sessions/:id', deleteSession);
 
 module.exports = router;
