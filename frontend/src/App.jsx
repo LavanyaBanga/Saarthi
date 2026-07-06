@@ -11,7 +11,7 @@ import AuthLogin from "./Components/SignIn";
 
 import Chatbot from "./Components/Chatbot/Chatbot";
 import UserDashboard from "./Components/UserDashboard/user";
-import Booking from "./Components/UserDashboard/Booking";
+import Booking from "./Components/UserDashboard/booking";
 import Success from "./Components/UserDashboard/success";
 import DoctorLayout from "./Components/Doctor/DoctorLayout";
 import Dashboard from "./Components/UserDashboard/UserLook";
