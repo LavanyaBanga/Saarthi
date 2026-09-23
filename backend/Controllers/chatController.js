@@ -20,34 +20,49 @@ Important rules:
 - Use simple language — avoid heavy medical jargon unless the patient seems medically literate.`;
 
 // ─── Helper: Groq API call ────────────────────────────────────────────────────
-const callGroq = async (userText, history = []) => {
-  const response = await axios.post(
-    GROQ_URL,
-    {
-      model: 'llama-3.1-8b-instant',
-      messages: [
-        { role: 'system', content: SYSTEM_PROMPT },
-        ...history.map((m) => ({
-          role: m.sender === 'user' ? 'user' : 'assistant',
-          content: m.text,
-        })),
-        { role: 'user', content: userText },
-      ],
-      max_tokens: 512,
-      temperature: 0.7,
-    },
-    {
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
-      },
-    }
-  );
 
-  return (
-    response.data.choices?.[0]?.message?.content ||
-    "Sorry, I couldn't generate a response. Please try again."
-  );
+
+const callGroq = async (userText, history = []) => {
+  try {
+    const response = await axios.post(
+      GROQ_URL,
+      {
+        model: 'llama-3.1-8b-instant',
+        messages: [
+          { role: 'system', content: SYSTEM_PROMPT },
+          ...history.map((m) => ({
+            role: m.sender === 'user' ? 'user' : 'assistant',
+            content: m.text,
+          })),
+          { role: 'user', content: userText },
+        ],
+        max_tokens: 512,
+        temperature: 0.7,
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
+        },
+      }
+    );
+
+    console.log("GROQ SUCCESS:", response.data);
+
+    return (
+      response.data.choices?.[0]?.message?.content ||
+      "Sorry, I couldn't generate a response. Please try again."
+    );
+
+  } catch (error) {
+    console.error("========== GROQ ERROR ==========");
+    console.error("Status:", error.response?.status);
+    console.error("Data:", error.response?.data);
+    console.error("Message:", error.message);
+    console.error("================================");
+
+    throw error;
+  }
 };
 
 // ─── POST /api/chat/send ──────────────────────────────────────────────────────
