@@ -36,6 +36,11 @@ const getToken = () => {
 const request = async (url, options = {}) => {
   const token = getToken();
 
+  console.log("API REQUEST:", {
+    url,
+    hasToken: !!token,
+  });
+
   const res = await fetch(`${API_BASE_URL}${url}`, {
     ...options,
     headers: {
@@ -46,18 +51,30 @@ const request = async (url, options = {}) => {
   });
 
   let data = {};
+
   try {
     data = await res.json();
   } catch {
     data = {};
   }
 
+  console.log("API RESPONSE:", {
+    url,
+    status: res.status,
+    data,
+  });
+
   if (!res.ok) {
-    throw new Error(data.message || `Request failed with status ${res.status}`);
+    throw new Error(
+      data.message || `Request failed with status ${res.status}`
+    );
   }
 
   return data;
 };
+
+  
+
 
 const api = {
   sendMessage: (message, sessionId) =>
